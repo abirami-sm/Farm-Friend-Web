@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Farm Friend — AI Farming Assistant</title>
+<meta name="description" content="AI-powered crop disease detection, weather risk prediction, soil analysis and crop recommendations for Indian farmers.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%232E6B3F%22/><text x=%2250%22 y=%2266%22 font-size=%2255%22 text-anchor=%22middle%22>🌾</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ==========================================================================
+     SCREEN: Landing page
+     ========================================================================== -->
+<section id="screen-landing" class="screen active">
+  <div class="landing-simple">
+    <div class="logo-big"><span class="mark">🌾</span> Farm Friend</div>
+    <div class="language-picker landing-language"><label for="language-select-landing" class="sr-only">Language</label><select id="language-select-landing" class="language-select language-select-floating" aria-label="Language"><option value="en">English</option><option value="ta">தமிழ்</option><option value="hi">हिन्दी</option><option value="te">తెలుగు</option><option value="kn">ಕನ್ನಡ</option></select></div>
+    <button class="btn btn-primary" data-nav="login">Farmer Login</button>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     SCREEN: Login (name + mobile)
+     ========================================================================== -->
+<section id="screen-login" class="screen">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="mark">🌾</div>
+      <h2>Farmer Login</h2>
+      <p class="sub">Enter your details to receive a one-time password.</p>
+      <div class="field">
+        <label for="login-name">Farmer Name</label>
+        <input id="login-name" type="text" placeholder="e.g. Murugan S" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="login-mobile">Mobile Number</label>
+        <input id="login-mobile" type="tel" placeholder="10-digit mobile number" maxlength="10" autocomplete="tel">
+      </div>
+      <div id="login-error" class="text-sm" style="color:var(--risk-high); display:none; margin-bottom:1em;"></div>
+      <button class="btn btn-primary btn-block" id="btn-send-otp">Send OTP</button>
+      <button class="btn btn-ghost btn-block mt-1" id="btn-fill-demo">Use demo farmer details</button>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     SCREEN: OTP verification
+     ========================================================================== -->
+<section id="screen-otp" class="screen">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="mark">🔒</div>
+      <h2>Verify OTP</h2>
+      <p class="sub">We've sent a one-time password to <strong id="otp-mobile-display"></strong></p>
+      <div class="demo-hint">Prototype mode — demo OTP is <strong>12345</strong></div>
+      <div class="otp-boxes">
+        <input maxlength="1" inputmode="numeric" class="otp-digit">
+        <input maxlength="1" inputmode="numeric" class="otp-digit">
+        <input maxlength="1" inputmode="numeric" class="otp-digit">
+        <input maxlength="1" inputmode="numeric" class="otp-digit">
+        <input maxlength="1" inputmode="numeric" class="otp-digit">
+      </div>
+      <div id="otp-error" class="text-sm" style="color:var(--risk-high); display:none; margin:0.6em 0;"></div>
+      <button class="btn btn-primary btn-block mt-1" id="btn-verify-otp">Verify &amp; Continue</button>
+      <button class="btn btn-ghost btn-block mt-1" data-nav="login">Change number</button>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     SCREEN: Farmer profile setup
+     ========================================================================== -->
+<section id="screen-profile-setup" class="screen">
+  <div class="profile-wrap">
+    <div class="flex-between">
+      <h2 class="mb-0">Set up your farmer profile</h2>
+      <button class="btn btn-ghost btn-sm" id="btn-fill-demo-profile">Fill demo data</button>
+    </div>
+    <p class="muted text-sm">Tell us about your farm so recommendations fit your field. Fields marked * are required.</p>
+    <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+
+    <form id="profile-form">
+      <div class="profile-section">
+        <h3>Personal Information</h3>
+        <div class="field-row">
+          <div class="field"><label>Farmer Name *</label><input required id="p-name" type="text"></div>
+          <div class="field"><label>Mobile Number *</label><input required id="p-mobile" type="tel" maxlength="10"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>State *</label><select required id="p-state"></select></div>
+          <div class="field"><label>District *</label><select required id="p-district"></select></div>
+        </div>
+        <div class="field"><label>Village / City *</label><input required id="p-village" type="text" placeholder="e.g. Sulur"></div>
+      </div>
+
+      <div class="profile-section">
+        <h3>Farming Information</h3>
+        <div class="field-row">
+          <div class="field"><label>Total Land Area *</label><input required id="p-land-area" type="number" min="0" step="0.1" placeholder="e.g. 3.5"></div>
+          <div class="field"><label>Land Area Unit *</label>
+            <select required id="p-land-unit"><option>Acres</option><option>Hectares</option></select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Current Crop *</label><select required id="p-current-crop"></select></div>
+          <div class="field"><label>Previous Crop</label><select id="p-previous-crop"><option value="">— None —</option></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Farming Experience (years) *</label><input required id="p-experience" type="number" min="0" placeholder="e.g. 8"></div>
+          <div class="field"><label>Irrigation Type *</label><select required id="p-irrigation"></select></div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h3>Optional Information</h3>
+        <div class="field-row">
+          <div class="field"><label>Soil Type</label><select id="p-soil-type"><option value="">— Not sure —</option></select></div>
+          <div class="field"><label>Available Water Source</label><input id="p-water-source" type="text" placeholder="e.g. Borewell, pond"></div>
+        </div>
+        <div class="field">
+          <label>Preferred Farming Method</label>
+          <div class="chip-group" id="p-farming-method-group"></div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="btn-save-profile">Save &amp; Continue</button>
+    </form>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     SCREEN: Main app shell (post-login)
+     ========================================================================== -->
+<section id="screen-app" class="screen">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="logo"><span class="mark">🌾</span> Farm Friend</div>
+      <nav id="sidebar-nav">
+        <button class="nav-item" data-route="dashboard"><span>📊</span> Dashboard</button>
+        <button class="nav-item" data-route="disease"><span>🌱</span> Disease Prediction</button>
+        <button class="nav-item" data-route="disaster"><span>🌦</span> Disaster Prediction</button>
+        <button class="nav-item" data-route="soil"><span>🌾</span> Soil Monitoring</button>
+        <button class="nav-item" data-route="alerts"><span>🔔</span> Alerts</button>
+        <button class="nav-item" data-route="profile"><span>👤</span> Farmer Profile</button>
+        <button class="nav-item" data-route="settings"><span>⚙️</span> Settings</button>
+      </nav>
+      <button class="nav-item logout-item" id="btn-logout"><span>↩</span> Logout</button>
+    </aside>
+
+    <div class="main-area">
+      <div class="topbar">
+        <h1 id="topbar-title">Dashboard</h1>
+        <div class="topbar-actions">
+          <div class="language-picker"><label for="language-select" class="sr-only">Language</label><select id="language-select" class="language-select" aria-label="Language"><option value="en">English</option><option value="ta">தமிழ்</option><option value="hi">हिन्दी</option><option value="te">తెలుగు</option><option value="kn">ಕನ್ನಡ</option></select></div>
+          <div class="avatar-pill"><span class="dot" id="avatar-initial">F</span><span id="avatar-name">Farmer</span></div>
+        </div>
+      </div>
+      <main class="page" id="page-content"></main>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="row" id="bottom-nav-row">
+      <button data-route="dashboard"><span class="icon">📊</span>Home</button>
+      <button data-route="disease"><span class="icon">🌱</span>Disease</button>
+      <button data-route="disaster"><span class="icon">🌦</span>Disaster</button>
+      <button data-route="soil"><span class="icon">🌾</span>Soil</button>
+      <button data-route="profile"><span class="icon">👤</span>Profile</button>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
